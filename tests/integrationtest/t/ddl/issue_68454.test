@@ -1,0 +1,5 @@
+# Issue 68454: CREATE INDEX allows invalid table_name.column_name syntax without error
+DROP TABLE IF EXISTS t;
+CREATE TABLE t (a INT, b INT, c INT);
+-- error 1054 # Unknown column 'xx.c' in 'index'
+ALTER TABLE t ADD INDEX idx_bad (a, xx.c);
