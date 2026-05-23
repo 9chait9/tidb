@@ -119,6 +119,12 @@ func buildIndexColumns(ctx *metabuild.Context, columns []*model.ColumnInfo, inde
 	// The sum of length of all index columns.
 	sumLength := 0
 	for _, ip := range indexPartSpecifications {
+				// Check if a table qualifier is present in the index column definition.
+		// Qualified column names are not allowed in index definitions according to MySQL compatibility.
+		if ip.Column != nil && len(ip.Column.Table.L) > 0 {
+			return nil, false, dbterror.ErrWrongColumnName.GenWithStack("Column '%s' cannot be qualified with a table name in an index definition", ip.Column.String())
+		}
+
 		col = model.FindColumnInfo(columns, ip.Column.Name.L)
 		if col == nil {
 			return nil, false, dbterror.ErrKeyColumnDoesNotExits.GenWithStack("column does not exist: %s", ip.Column.Name)
